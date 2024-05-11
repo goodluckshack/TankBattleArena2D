@@ -11,6 +11,28 @@ public class BattleArenaGenerator : MonoBehaviour
     private Dictionary<Vector2Int, bool> generatedTiles = new Dictionary<Vector2Int, bool>();
 
     // Generating a tile at a specified position
+
+    private void OnEnable()
+    {
+        GameEventsManager.Instance.MapEvents.OnPlayerMoved += Generate;
+    }
+
+    private void OnDisable()
+    {
+        GameEventsManager.Instance.MapEvents.OnPlayerMoved -= Generate;
+    }
+
+    private void Generate(Vector2Int playerPosition)
+    {
+        for (int x = -PlayerTankController.VIEW_DISTANCE; x <= PlayerTankController.VIEW_DISTANCE; x++)
+        {
+            for (int y = -PlayerTankController.VIEW_DISTANCE; y <= PlayerTankController.VIEW_DISTANCE; y++)
+            {
+                GenerateTile(playerPosition.x + x, playerPosition.y + y);
+            }
+        }
+    }
+
     public void GenerateTile(int x, int y)
     {
         Vector2Int tilePosition = new Vector2Int(x, y);

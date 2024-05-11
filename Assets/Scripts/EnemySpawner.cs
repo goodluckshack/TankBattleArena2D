@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
@@ -11,6 +9,7 @@ public class EnemySpawner : MonoBehaviour
 
     private float nextSpawnTime;
     private int currentEnemyCount;
+
     void Start()
     {
         currentEnemyCount = 0;
@@ -27,30 +26,31 @@ public class EnemySpawner : MonoBehaviour
 
     void SpawnEnemy()
     {
-        Vector2 spawnPosition = Random.insideUnitCircle * _spawnRadius + (Vector2)transform.position;
-        GameObject enemy = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
-        enemy.SetActive(true);
-        currentEnemyCount++;
-
-        // Установка контроллера танка
-        EnemyTankController enemyTankController = enemy.GetComponent<EnemyTankController>();
-        enemyTankController.OnEnemyDestroyed += HandleEnemyDestroyed;
-        if (PlayerTankController.Instance != null)
+        if (currentEnemyCount < _maxEnemies)
         {
-            enemyTankController.player = PlayerTankController.Instance.transform;
-        }
+            GameObject enemy = EnemyTankPool.Instance.GetTank();
+            enemy.transform.position = Random.insideUnitCircle * _spawnRadius + (Vector2)transform.position;
+            enemy.SetActive(true);
+            currentEnemyCount++;
 
-        // Установка контроллера оружия
-        EnemyGunController enemyGunController = enemy.GetComponent<EnemyGunController>();
-        if (enemyGunController != null && PlayerTankController.Instance != null)
-        {
-            enemyGunController.player = PlayerTankController.Instance.transform;
+            EnemyTankController enemyController = enemy.GetComponent<EnemyTankController>();
+            enemyController.OnEnemyDestroyed += HandleEnemyDestroyed;
+            if (PlayerTankController.Instance != null)
+            {
+                enemyController.player = PlayerTankController.Instance.transform;
+            }
+
+            EnemyGunController enemyGunController = enemy.GetComponent<EnemyGunController>();
+            if (enemyGunController != null && PlayerTankController.Instance != null)
+            {
+                enemyGunController.player = PlayerTankController.Instance.transform;
+            }
         }
     }
-
 
     private void HandleEnemyDestroyed()
     {
         currentEnemyCount--;
+        if (currentEnemyCount < 0) currentEnemyCount = 0; // Обеспечиваем, что счетчик не уйдет в отрицательные значения
     }
 }

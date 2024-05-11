@@ -2,13 +2,15 @@ using UnityEngine;
 
 public class PlayerTankController : MonoBehaviour
 {
+    public static PlayerTankController Instance { get; private set; }
+    public const int VIEW_DISTANCE = 15;
+
     [SerializeField] private float _moveSpeed = 5f;
     [SerializeField] private float _rotationSpeed = 150f;
     [SerializeField] private JoystickControl joystickControl;
     [SerializeField] private float _dumpingSpeed;
     [SerializeField] private Camera _camera;
     [SerializeField] private BattleArenaGenerator mapGenerator;
-    [SerializeField] private int viewDistance = 15;
 
     private Rigidbody2D rb;
     private Vector2 movementInput;
@@ -16,9 +18,6 @@ public class PlayerTankController : MonoBehaviour
     private Animator trackALeftAnimator;
     private Vector2Int lastGeneratedPosition;
     private Vector2 currentVelocity;
-
-
-    public static PlayerTankController Instance { get; private set; }
 
     void Awake()
     {
@@ -39,14 +38,18 @@ public class PlayerTankController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         trackARightAnimator = transform.Find("TrackARight").GetComponent<Animator>();
         trackALeftAnimator = transform.Find("TrackALeft").GetComponent<Animator>();
+        Vector2Int playerPos = new(Mathf.FloorToInt(transform.position.x), Mathf.FloorToInt(transform.position.y));
+        PlayerMoved(playerPos);
     }
+
+    private float _distance = 1f;
 
     void Update()
     {
         ReadInput();
-        GenerateMapAroundPlayer();
-
+        TrackPlayerPosition();
     }
+
     void FixedUpdate()
     {
         // Call the Move function to update position and rotation
@@ -62,7 +65,7 @@ public class PlayerTankController : MonoBehaviour
         float horizontalInput = joystickControl.Horizontal();
         movementInput = new Vector2(horizontalInput, verticalInput);
     }
-    
+
     private void Move()
     {
         // Check if there is any input
@@ -104,19 +107,27 @@ public class PlayerTankController : MonoBehaviour
     }
 
     // Map generation
-    private void GenerateMapAroundPlayer()
+    private void TrackPlayerPosition()
     {
-        Vector2Int playerPos = new Vector2Int(Mathf.FloorToInt(transform.position.x), Mathf.FloorToInt(transform.position.y));
-        if (lastGeneratedPosition != playerPos)
+        Vector2Int playerPos = new(Mathf.FloorToInt(transform.position.x), Mathf.FloorToInt(transform.position.y));
+        if (Vector2Int.Distance(playerPos, lastGeneratedPosition) > _distance)
         {
-            for (int x = -viewDistance; x <= viewDistance; x++)
-            {
-                for (int y = -viewDistance; y <= viewDistance; y++)
-                {
-                    mapGenerator.GenerateTile(playerPos.x + x, playerPos.y + y);
-                }
-            }
-            lastGeneratedPosition = playerPos; 
+            PlayerMoved(playerPos);
+        }
+    }
+
+    private void PlayerMoved(Vector2Int playerPos)
+    {
+        GameEventsManager.Instance.MapEvents.PlayerMoved(playerPos);
+        lastGeneratedPosition = playerPos;
+    }
+
+
+    void OnDestroy()
+    {
+        if (BulletPool.Instance != null)
+        {
+            BulletPool.Instance.ReturnAllBullets();
         }
     }
 }

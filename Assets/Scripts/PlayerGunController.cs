@@ -32,11 +32,10 @@ public class PlayerGunController : MonoBehaviour
     {
         if (Time.time - _lastShotTime > _reloadTime)
         {
-            GameObject bullet = Instantiate(bulletPrefab, firePoint.position + firePoint.up * 1.4f, firePoint.rotation);
-
-            // Set the shooter property of the bullet to this game object
+            GameObject bullet = BulletPool.Instance.GetBullet();
+            bullet.transform.position = firePoint.position + firePoint.up * 1.4f;
+            bullet.transform.rotation = firePoint.rotation;
             bullet.GetComponent<BulletController>().shooter = gameObject;
-
             _lastShotTime = Time.time;
         }
     }

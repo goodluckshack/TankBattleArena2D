@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class EnemyGunController : MonoBehaviour
 {
-    [SerializeField] private GameObject bulletPrefab;
     [SerializeField] private Transform firePoint;
     public Transform player;
     [SerializeField] private float _reloadTime = 2f;
@@ -19,7 +18,7 @@ public class EnemyGunController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // Checking if the current time has surpassed the next allowable fire time and if the enemy can shoot the player
+        // Проверка, пришло ли время для следующего выстрела и находится ли игрок в диапазоне стрельбы
         if (player != null && CanShootAtPlayer())
         {
             if (Time.time >= _nextFireTime)
@@ -30,24 +29,25 @@ public class EnemyGunController : MonoBehaviour
         }
     }
 
-    // This method handles the instantiation and setup of the bullet
+    // Метод стрельбы, использующий пул пуль
     public void Shoot()
     {
-        // Instantiating a bullet
-        GameObject bullet = Instantiate(bulletPrefab, firePoint.position + firePoint.up * 1.4f, firePoint.rotation);
+        if (BulletPool.Instance != null)
+        {
+            GameObject bullet = BulletPool.Instance.GetBullet();
+            bullet.transform.position = firePoint.position + firePoint.up * 1.4f;
+            bullet.transform.rotation = firePoint.rotation;
+            bullet.GetComponent<BulletController>().shooter = gameObject;
+            bullet.SetActive(true);
 
-        // Set the shooter property of the bullet to this game object
-        bullet.GetComponent<BulletController>().shooter = gameObject;
-
-        Debug.Log("Bullet created by " + gameObject.name);
+            Debug.Log("Bullet created by " + gameObject.name + " using pool.");
+        }
     }
 
     private bool CanShootAtPlayer()
     {
-        //
+        // Проверка расстояния до игрока
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
-
-        //
         return distanceToPlayer <= _maxDistance;
     }
 }

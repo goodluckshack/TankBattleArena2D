@@ -23,8 +23,7 @@ public class BulletController : MonoBehaviour
 
         if (traveledDistance >= _maxDistance)
         {
-            Debug.Log(gameObject.name + " self destroyed due to max distance");
-            Destroy(gameObject);
+            BulletPool.Instance.ReturnBullet(gameObject);
         }
     }
 
@@ -33,18 +32,25 @@ public class BulletController : MonoBehaviour
         RaycastHit2D hit = Physics2D.Raycast(transform.position, transform.up, moveStep);
         if (hit.collider != null && hit.collider.gameObject != shooter)
         {
+            if (shooter.GetComponent<EnemyTankController>() != null && hit.collider.GetComponent<EnemyTankController>() != null)
+            {
+                BulletPool.Instance.ReturnBullet(gameObject);
+                return;
+            }
+
             if (hit.collider.gameObject.GetComponent<PlayerTankController>() != null)
             {
                 Destroy(hit.collider.gameObject);
-                Debug.Log(hit.collider.gameObject + " destroyed. Game over!");
-                Destroy(gameObject);
+                Debug.Log(hit.collider.gameObject.name + " destroyed. Game over!");
+                BulletPool.Instance.ReturnBullet(gameObject);
             }
             else if (hit.collider.gameObject.GetComponent<EnemyTankController>() != null)
             {
                 ScoreManager.AddScore(100);
                 Destroy(hit.collider.gameObject);
-                Destroy(gameObject);
+                BulletPool.Instance.ReturnBullet(gameObject);
             }
         }
     }
+
 }
