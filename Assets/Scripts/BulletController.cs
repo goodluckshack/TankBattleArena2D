@@ -38,13 +38,18 @@ public class BulletController : MonoBehaviour
                 return;
             }
 
-            if (hit.collider.gameObject.GetComponent<PlayerTankController>() != null)
+            var playerTankController = hit.collider.gameObject.GetComponent<PlayerTankController>();
+            if (playerTankController != null)
             {
                 Destroy(hit.collider.gameObject);
-                Debug.Log(hit.collider.gameObject.name + " destroyed. Game over!");
+                Debug.Log(playerTankController.name + " destroyed. Game over!");
                 BulletPool.Instance.ReturnBullet(gameObject);
+                UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
+                return;
             }
-            else if (hit.collider.gameObject.GetComponent<EnemyTankController>() != null)
+
+            var enemyTankController = hit.collider.gameObject.GetComponent<EnemyTankController>();
+            if (enemyTankController != null)
             {
                 ScoreManager.AddScore(100);
                 Destroy(hit.collider.gameObject);

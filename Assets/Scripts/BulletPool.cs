@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -56,7 +55,6 @@ public class BulletPool : MonoBehaviour
         }
     }
 
-    // Метод для возвращения всех активных пуль
     public void ReturnAllBullets()
     {
         foreach (GameObject bullet in new List<GameObject>(activeBullets))

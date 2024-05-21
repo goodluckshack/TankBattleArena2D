@@ -51,6 +51,6 @@ public class EnemySpawner : MonoBehaviour
     private void HandleEnemyDestroyed()
     {
         currentEnemyCount--;
-        if (currentEnemyCount < 0) currentEnemyCount = 0; // Обеспечиваем, что счетчик не уйдет в отрицательные значения
+        if (currentEnemyCount < 0) currentEnemyCount = 0;
     }
 }

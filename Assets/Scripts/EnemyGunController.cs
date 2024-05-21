@@ -18,7 +18,6 @@ public class EnemyGunController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // Проверка, пришло ли время для следующего выстрела и находится ли игрок в диапазоне стрельбы
         if (player != null && CanShootAtPlayer())
         {
             if (Time.time >= _nextFireTime)
@@ -29,7 +28,7 @@ public class EnemyGunController : MonoBehaviour
         }
     }
 
-    // Метод стрельбы, использующий пул пуль
+
     public void Shoot()
     {
         if (BulletPool.Instance != null)
@@ -46,7 +45,6 @@ public class EnemyGunController : MonoBehaviour
 
     private bool CanShootAtPlayer()
     {
-        // Проверка расстояния до игрока
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
         return distanceToPlayer <= _maxDistance;
     }
